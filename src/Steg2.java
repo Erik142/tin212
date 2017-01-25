@@ -23,10 +23,9 @@ public class Steg2 extends JFrame {
 		this.setLayout(new BorderLayout());
 		view = new CrystalView(m, WIDTH, HEIGHT);
 		
-		
+		JPanel buttonPanel = new JPanel();
 		
 		this.add(view, BorderLayout.CENTER);
-		this.add(buttonPanel,BorderLayout.PAGE_END);
 		this.setVisible(true);
 	}
 	

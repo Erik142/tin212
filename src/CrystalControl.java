@@ -19,13 +19,17 @@ CrystalModel model;
 Timer timer;
 
  public CrystalControl(int size){
-	 model = new CrystalModel(100);
+	 model = new CrystalModel(size/2);
 	 view = new CrystalView(model,size,size);
 	 buttonSpeed = new JButton("ChangeSpeed"); 
 	 buttonRun = new JButton("Run");
 	 buttonStop = new JButton("Stopped");
 	 timer = new Timer(50,new TimerListener());
-	 this.add(view);
+	 
+	 this.setLayout(new BorderLayout());
+	 
+	 this.add(view, BorderLayout.CENTER);
+	 
 	 JPanel buttonPanel = new JPanel();
 	 buttonPanel.add(buttonSpeed);
 	 buttonPanel.add(buttonRun);

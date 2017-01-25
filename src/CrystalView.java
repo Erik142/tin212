@@ -31,7 +31,8 @@ public class CrystalView extends JPanel {
 			}
 			int xPos = crystals.get(i).getX() + WINDOW_WIDTH/2;
 			int yPos = crystals.get(i).getY() + WINDOW_HEIGHT/2;
-			g.drawLine(xPos, yPos, xPos, yPos);
+			g.drawOval(xPos, yPos, 1, 1);
+			//g.drawLine(xPos, yPos, xPos, yPos);
 		}
 	}
 	
