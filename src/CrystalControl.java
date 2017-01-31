@@ -44,7 +44,9 @@ public class CrystalControl extends JPanel{
 		buttonRun.addActionListener(new ButtonListener());
 		buttonStop.addActionListener(new ButtonListener());
 	}
-
+	
+	/*Använder en SwingWorker istället för Timer för att gränssnittet inte ska bli långsamt vid stora bad.
+	(Det blev långsamt, annars hade det absolut fungerat bra med en Timer!)*/
 	private class BackgroundWorker extends SwingWorker<Void,Void> {
 
 		@Override
@@ -52,8 +54,11 @@ public class CrystalControl extends JPanel{
 			// TODO Auto-generated method stub
 			long startTime = System.currentTimeMillis(), middleStartTime = startTime,
 					middleStopTime = 0, stopTime = 0, execTime = 0;
-
-			while(model.runSomeSteps((int)(0.05*model.getBathSize())) == true) {
+			//Enkel algoritm för att bestämma antalet steg som ska beräknas åt gången, utan att uppritningen blir långsam!
+			int steps = (int)(2*0.01*(1000-model.getBathSize())/4*(10-0.02*timerDelay+1));
+			int currentDelay = timerDelay;
+			
+			while(model.runSomeSteps(steps) == true) {
 				middleStopTime = System.currentTimeMillis();
 				execTime = middleStopTime-middleStartTime;
 				if (execTime < timerDelay) {
@@ -72,6 +77,12 @@ public class CrystalControl extends JPanel{
 					}
 
 				});
+				
+				if (currentDelay != timerDelay) {
+					steps = (int)(2*0.01*(1000-model.getBathSize())/4*(10-0.02*timerDelay+1));
+					currentDelay = timerDelay;
+				}
+				
 				middleStartTime = System.currentTimeMillis();
 			}
 			stopTime = System.currentTimeMillis();
@@ -90,8 +101,8 @@ public class CrystalControl extends JPanel{
 
 	private class ButtonListener implements ActionListener{
 
-
 		public void actionPerformed (ActionEvent e){
+			
 			if(e.getSource()==buttonRun){
 
 				if (bg != null && bg.isDone()) {
@@ -105,7 +116,6 @@ public class CrystalControl extends JPanel{
 				}
 			}
 			else if (e.getSource() == buttonStop) {
-				//timer.stop();
 				if (bg != null && !bg.isDone()) {
 					bg.cancel(true);
 				}
@@ -115,25 +125,21 @@ public class CrystalControl extends JPanel{
 					buttonRun.setText("Run");
 				}
 			}
-
-			else if(e.getSource() == buttonSpeed){
+			else if(e.getSource() == buttonSpeed) {
 				JSlider delaySlider = getSlider(timerDelay);
 
 				int status = generateSliderDialog(delaySlider);
-				//Object message = optionPane.getInputValue();
+
 				if (status == JOptionPane.OK_OPTION) {
 					timerDelay = delaySlider.getValue();
-
 				}
-				System.out.println("inputValue = " + timerDelay);
-
 
 			}
 
-
-
 		}
+		
 		private int generateSliderDialog(JSlider slider) {
+			
 			JFrame window = new JFrame();
 			JPanel panel = new JPanel();
 
@@ -144,12 +150,8 @@ public class CrystalControl extends JPanel{
 			panel.add(slider, BorderLayout.PAGE_END);
 
 
-			//optionPane.setMessage(new Object[] { "Välj tidsfördröjning(ms)", delaySlider });
-			//optionPane.setMessageType(JOptionPane.QUESTION_MESSAGE);
-			//optionPane.setOptionType(JOptionPane.OK_CANCEL_OPTION);
 			int status = JOptionPane.showConfirmDialog(window, panel, "Ändra fördröjning", JOptionPane.OK_CANCEL_OPTION);
 			return status;
-
 
 		}
 

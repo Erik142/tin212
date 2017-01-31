@@ -21,8 +21,10 @@ public class CrystalModel {
 	private int x = 0;  // xBath
 	private int y = 0;  // yBath
 
+	// Save the size parameter of class constructor
 	private int bathSize;
 
+	// Use only one Random instance
 	private Random genStep;
 	/**
 	 * Skapar en modell av kristallbadet (elektrolytbadet).
@@ -43,7 +45,7 @@ public class CrystalModel {
 		return y;
 	}
 	public int getEscapeCircleRadius() {
-		return this.escapeCircleRadius; // TODO
+		return this.escapeCircleRadius;
 	}
 	public int getBathSize() {
 		return this.bathSize;
@@ -56,7 +58,6 @@ public class CrystalModel {
 	 * @return "true" om det finns en kristalliserad jon på position x,y.
 	 */
 	public boolean getModelValue(int x, int y) {
-		//System.out.println(x + " " + y);
 		return modelRep[xBathToModelRep(x)][yBathToModelRep(y)];
 	}
 
@@ -67,7 +68,7 @@ public class CrystalModel {
 	 * på startcirkeln) och "true" om vi kan kristallisera fler joner
 	 */
 	public boolean crystallizeOneIon() {
-		// TODO
+		
 		dropNewIon();
 
 		genStep = new Random();
@@ -102,6 +103,7 @@ public class CrystalModel {
 			}
 
 		} while (!outsideCicle(this.escapeCircleRadius, x, y));
+		
 		return crystallizeOneIon();
 	}
 
@@ -122,7 +124,7 @@ public class CrystalModel {
 	 */
 	public void reset() {
 		this.modelRep = new boolean[bathSize][bathSize];
-		this.modelRep[xBathToModelRep(0)][yBathToModelRep(0)] = true;// TODO
+		this.modelRep[xBathToModelRep(0)][yBathToModelRep(0)] = true;
 	}
 
 	/**
@@ -138,7 +140,9 @@ public class CrystalModel {
 	}
 
 	private static boolean onCirclePerimeter(int r, int x, int y) {
-		return (Math.pow(r, 2) - 1 <= Math.pow(x, 2) + Math.pow(y, 2));
+		//Det finns ej heltal sådana att x^2+y^2=r^2 för alla radier r, vi tar hänsyn till detta genom att
+		//säga att jonen är på cirkelns rand då x^2+y^2 >= r^2.
+		return (Math.pow(r, 2) <= Math.pow(x, 2) + Math.pow(y, 2));
 	}
 
 	/**
@@ -188,7 +192,7 @@ public class CrystalModel {
 		// and transform to a x,y cordinate
 		double startAngle = Math.random() * 2 * Math.PI;
 		this.x = (int)(this.startCircleRadius * Math.cos(startAngle));
-		this.y = (int)(this.startCircleRadius * Math.sin(startAngle));// TODO
+		this.y = (int)(this.startCircleRadius * Math.sin(startAngle));
 	}
 
 	/**
