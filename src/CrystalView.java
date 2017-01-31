@@ -22,7 +22,7 @@ public class CrystalView extends JPanel {
 		this.setBackground(Color.BLACK);
 		this.setPreferredSize(new Dimension(WINDOW_SIZE,WINDOW_SIZE));
 		this.setLayout(new BorderLayout());
-		System.out.println("" + m.getBathSize());
+		System.out.println("Model Size: " + m.getBathSize());
 	}
 	
 	public void paintComponent(Graphics g) {

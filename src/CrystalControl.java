@@ -54,11 +54,12 @@ int timerDelay = 10;
 		@Override
 		protected Void doInBackground() throws Exception {
 			// TODO Auto-generated method stub
-			long startTime = System.currentTimeMillis(), middleStartTime = 0, middleStopTime = 0, stopTime = 0, execTime = 0;
+			long startTime = System.currentTimeMillis(), middleStartTime = startTime,
+					middleStopTime = 0, stopTime = 0, execTime = 0;
 			boolean status;
 			while((status = model.runSomeSteps((int)(0.05*model.getBathSize()))) == true) {
 			middleStopTime = System.currentTimeMillis();
-			execTime = middleStopTime-startTime;
+			execTime = middleStopTime-middleStartTime;
 			if (execTime < timerDelay) {
 				Thread.sleep(timerDelay-execTime);
 			}

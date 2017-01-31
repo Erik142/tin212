@@ -74,7 +74,6 @@ public class CrystalModel {
     	
     	do {
     		if (anyNeighbours(x,y) && !getModelValue(x,y)) {
-    			System.out.println("ion x: " + this.x + ", ion y: " + this.y);
     			this.modelRep[xBathToModelRep(x)][yBathToModelRep(y)] = true;
     			if (onCirclePerimeter(this.startCircleRadius, x, y)) {
     				return false;
