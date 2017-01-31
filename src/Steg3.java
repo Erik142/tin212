@@ -19,11 +19,11 @@ public class Steg3 extends JFrame{
 		// TODO Auto-generated method stub
 		if (args.length == 1) {
 			int size = Integer.parseInt(args[0]);
-			if (size < 10 || size > 1000) {
+			if (size < 100 || size > 1000) {
 				System.out.println("Storleken måste vara minst 10 och störst 1000");
 			}
 			else {
-				new Steg3(800);
+				new Steg3(size);
 			}
 		}
 		

@@ -73,8 +73,8 @@ public class CrystalModel {
     	genStep = new Random();
     	
     	do {
-    		//System.out.println("ion x: " + this.x + ", ion y: " + this.y);
     		if (anyNeighbours(x,y) && !getModelValue(x,y)) {
+    			System.out.println("ion x: " + this.x + ", ion y: " + this.y);
     			this.modelRep[xBathToModelRep(x)][yBathToModelRep(y)] = true;
     			if (onCirclePerimeter(this.startCircleRadius, x, y)) {
     				return false;

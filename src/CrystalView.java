@@ -38,7 +38,9 @@ public class CrystalView extends JPanel {
 			}
 		}
 		g.setColor(Color.GREEN);
-		g.drawOval(bathToWindowPosition(model.getX()), bathToWindowPosition(model.getY()), 1, 1);
+		if (model.getModelValue(model.getX(), model.getY())) {
+			g.drawOval(bathToWindowPosition(model.getX()), bathToWindowPosition(model.getY()), 1, 1);
+		}
 	}
 	
 	public void setColor(Color color) {
