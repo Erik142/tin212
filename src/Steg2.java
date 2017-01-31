@@ -21,7 +21,7 @@ public class Steg2 extends JFrame {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setTitle("Steg2");
 		this.setLayout(new BorderLayout());
-		view = new CrystalView(m, WIDTH, HEIGHT);
+		view = new CrystalView(m);
 		
 		JPanel buttonPanel = new JPanel();
 		

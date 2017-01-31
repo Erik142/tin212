@@ -19,12 +19,12 @@ CrystalModel model;
 Timer timer;
 
  public CrystalControl(int size){
-	 model = new CrystalModel(size/2);
-	 view = new CrystalView(model,size,size);
+	 model = new CrystalModel(size);
+	 view = new CrystalView(model);
 	 buttonSpeed = new JButton("ChangeSpeed"); 
 	 buttonRun = new JButton("Run");
 	 buttonStop = new JButton("Stopped");
-	 timer = new Timer(50,new TimerListener());
+	 timer = new Timer(10,new TimerListener());
 	 
 	 this.setLayout(new BorderLayout());
 	 
@@ -44,9 +44,10 @@ private class TimerListener implements ActionListener {
 
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
-		boolean finished = model.crystallizeOneIon();
-		if (!finished) {
-			view.setColor(Color.GREEN);
+		boolean finished = !model.runSomeSteps(50-(int)(0.1*timer.getDelay()+1));
+		//boolean finished = !model.crystallizeOneIon();
+		if (finished) {
+			//view.setColor(Color.GREEN);
 			buttonStop.doClick();
 			//model.reset();
 		}
@@ -61,9 +62,12 @@ private class ButtonListener implements ActionListener{
 
 public void actionPerformed (ActionEvent e){
 	if(e.getSource()==buttonRun){
-		timer.start();
-		buttonRun.setText("Running");
-		buttonStop.setText("Stop");
+		if (!timer.isRunning()) {
+			model.reset();
+			timer.start();
+			buttonRun.setText("Running");
+			buttonStop.setText("Stop");
+		}
 	}
 	else if (e.getSource() == buttonStop) {
 		timer.stop();
@@ -79,7 +83,7 @@ public void actionPerformed (ActionEvent e){
 		break;
 	}
 	delay = Integer.parseInt(input);
-	} while (delay < 50 || delay > 500 );
+	} while (delay < 10 || delay > 500 );
 	timer.setDelay(delay);
 	}
 

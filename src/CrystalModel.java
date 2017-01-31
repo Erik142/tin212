@@ -1,173 +1,220 @@
-import java.util.ArrayList;
 import java.util.Random;
 
-public class CrystalModel {
-	private ArrayList<Ion> crystals;
-	private Ion ion;
-	private int radius;
-	private int startR;
-	
-	public CrystalModel(int width) {
-		this.radius = (int)width/2;
-		this.startR = (int)(0.9*this.radius);
-		this.reset();
-	}
-	
-	public int getSize() {
-		return 2*radius;
-	}
-	
-	public ArrayList<Ion> getCrystals() {
-		return this.crystals;
-	}
-	
-	public boolean crystallizeOneIon() {
-		/*SlÃ¤pp en ny jon -> dropNewIon()
-		Flytta denna ett steg Ã¥t gÃ¥ngen tills den
-		kristalliseras.
-		Om jonen kommer utanfÃ¶r flyktcirkeln sÃ¥
-		slÃ¤pps en ny jon.
-		Metoden returnerar false nÃ¤r kristallen Ã¤r klar
-		(dvs nÃ¤r sista jonen kristalliseras pÃ¥ startcirkeln,
-		och true om vi kan kristallisera fler joner.*/
-		
-		dropNewIon();
-		
-		
-		//Flytta jonen
-		Random r = new Random();
-		while(!outsideCircle(this.radius, ion.getX(), 
-				ion.getY())) {
-		int move = r.nextInt(4);
-		
-		switch(move) {
-			case 0: 
-				ion.setY(ion.getY() + 1);
-				break;
-			case 1: 
-				ion.setY(ion.getY() - 1);
-				break;
-			case 2: 
-				ion.setX(ion.getX() + 1);
-				break;
-			case 3: 
-				ion.setX(ion.getX() - 1);
-				break;
-		}
-		
-		//System.out.println("xPos = " + ion.getX() + ", yPos = " + ion.getY());
-		
-		//!outsideCircle ->
-		//anyNeighbours ->
-		if (!getModelValue(ion.getX(),ion.getY()) && anyNeighbours(ion.getX(),ion.getY())) {
-			crystals.add(ion);
-			break;
-		}
-		}
-		if (outsideCircle(this.radius, ion.getX(), ion.getY())) {
-			crystallizeOneIon();
-		}
-		return !(Math.pow(this.startR, 2) == 
-				Math.pow(ion.getX(), 2) + 
-				Math.pow(ion.getY(), 2));
-		
-		//crystals.add(ion)
-		
-		//Pythagoras -> true/false
-	}
-	
-	public boolean getModelValue(int x, int y) {
-		
-		return crystals.contains(new Ion(x,y));
-	}
-	
-	public boolean outsideCircle(int r, int x, int y) {
-		return (Math.pow(r, 2) < (Math.pow(x, 2) + 
-				Math.pow(y, 2)));
-	}
-	
-	public boolean anyNeighbours(int x, int y) {
-		
-		Ion i1 = new Ion(x-1,y);
-		Ion i2 = new Ion(x+1,y);
-		Ion i3 = new Ion(x,(int)(y-1));
-		Ion i4 = new Ion(x,y+1);
-		
-		return (crystals.contains(i1) || crystals.contains(i2)
-				|| crystals.contains(i3) || crystals.contains(i4));
-		
-	}
-	
-	public void dropNewIon() {
-		//this.ion = new Ion();
-		int x = generatePosition(startR);
-		int bound = (int)(Math.sqrt(Math.pow(startR, 2) -
-				Math.pow(x, 2)));
-		int y = generatePosition(bound);
-		//System.out.println("bound = " + bound);
-		if (!getModelValue(x,y)) {
-			this.ion = new Ion(x,y);
-		}
-		else {
-			dropNewIon();
-		}
-	}
-	
-	private int generatePosition(int bound) {
-		if (bound != 0) {
-		Random rand = new Random();
-		return rand.nextInt(2*bound) - bound;
-		}
-		return 0;
-	}
-	
-	public void reset() {
-		crystals = new ArrayList<Ion>();
-		crystals.add(new Ion(0,0));
-	}
-	
-	public int xBathToModelRep(int x) {
-		return x + this.radius;
-	}
-	
-	public String printAll() {
-		String builder = "";
-		for(int i = 0; i < crystals.size(); i ++) {
-			builder = builder + "xPos = " + crystals.get(i).getX() + ", yPos = " + crystals.get(i).getY() + "\n";
-		}
-		return builder;
-	}
-	
-	public String toString() {
+/**
+ * CrystalModel är en klass som representerar ett elektrolytbad som omges med en
+ * cirkulär anod av zink, och i vars mitt en kolkatod är placerad. Därefter läggs
+ * en svag spänning över systemet.
+ * 
+ ...
+ * @author 
+ *
+ */
 
-        int x = ion.getX(); // the ions position in the bath
-        int y = ion.getY();
-        int size = this.radius;
-        StringBuffer s = new StringBuffer(1000);
-        for(int i=-size-1; i<size+1; i++) {
-            s.append("-");
-        }
-        s.append("\n");
-        for(int i=-size; i<size; i++) {
-            s.append("|");
-            for(int j=-size; j<size; j++) {
-                if (getModelValue(i, j)) {
-                    if (i==x && j==y) {
-                        s.append("#");
-                    } else {
-                        s.append("*");
-                    }
-                } else {
-                    s.append(" ");
-                }
-            }
-            s.append("|");
-            s.append("\n");
-        }
-        for(int i = -size-1; i < size+1; i++) {
-            s.append("-");
-        }
-        s.append("\n");
-        return s.toString();
+public class CrystalModel {
+	// variabler
+	private int escapeCircleRadius; // radius of escape circle
+	private int startCircleRadius; // radius of start circle
+	// the bath
+	private boolean[][] modelRep; // (model Representation) is the bolean matxix
+	// position of walking ion in our coordinate system, the bath,
+	// where 0,0 is in the middle
+	private int x = 0;  // xBath
+	private int y = 0;  // yBath
+	
+	private int bathSize;
+	
+	private Random genStep;
+	/**
+	 * Skapar en modell av kristallbadet (elektrolytbadet).
+	 * @param size Kristallbadets bredd
+	 */
+	public CrystalModel(int size) {
+		escapeCircleRadius = size/2-4; //(-4 to awoid indexOutOfBounds)
+		startCircleRadius = escapeCircleRadius - (int)(0.1*escapeCircleRadius);
+		this.bathSize = size;
+		reset();
 	}
+	
+	// getters
+	public int getX() { 
+		return x;
+	}
+	public int getY() {
+		return y;
+	}
+	public int getEscapeCircleRadius() {
+		return this.escapeCircleRadius; // TODO
+	}
+	public int getBathSize() {
+		return this.bathSize;
+	}
+	
+	/**
+	 * Kontrollera om det finns en kristalliserad jon på position x,y.
+	 * @param x koordinaten
+	 * @param y koordinaten
+	 * @return "true" om det finns en kristalliserad jon på position x,y.
+	 */
+	public boolean getModelValue(int x, int y) {
+		//System.out.println(x + " " + y);
+		return modelRep[xBathToModelRep(x)][yBathToModelRep(y)];
+	}
+
+	/**
+	 * Släpper en ny jon och flyttar jonen ett steg åt gången tills den
+	 * kristalliseras. Kommer den utanför flyktcirkeln så släpps en ny jon.
+	 * @return "false" när kristallen är klar (dvs när sista jonen kristalliseras
+	 * på startcirkeln) och "true" om vi kan kristallisera fler joner
+	 */
+    public boolean crystallizeOneIon() {
+		// TODO
+    	dropNewIon();
+    	
+    	genStep = new Random();
+    	
+    	do {
+    		//System.out.println("ion x: " + this.x + ", ion y: " + this.y);
+    		if (anyNeighbours(x,y) && !getModelValue(x,y)) {
+    			this.modelRep[xBathToModelRep(x)][yBathToModelRep(y)] = true;
+    			if (onCirclePerimeter(this.startCircleRadius, x, y)) {
+    				return false;
+    			}
+    			else {
+    				return true;
+    			}
+    		}
+    		else {
+    			int step = genStep.nextInt(4);
+    			
+    			switch(step) {
+    				case 0:
+    					x += 1;
+    					break;
+    				case 1:
+    					x -= 1;
+    					break;
+    				case 2: 
+    					y += 1;
+    					break;
+    				case 3:
+    					y -= 1;
+    					break;
+    			};
+    		}
+    		
+    	} while (!outsideCicle(this.escapeCircleRadius, x, y));
+    	return crystallizeOneIon();
+	}
+	
+	/** ...
+	*/
+	public boolean runSomeSteps(int steps) {
+		int i= 0;
+		boolean goOn = false;
+		do {
+			goOn = crystallizeOneIon();
+			i++;
+		} while ( i<steps && goOn );
+		return goOn; // we are done
+	}
+	
+	/**
+	 * Initierar modellen (dvs matrisen) och lägger en första kristalliserad jon mitt i "badet". 
+	 */
+	public void reset() {
+		this.modelRep = new boolean[bathSize][bathSize];
+		this.modelRep[xBathToModelRep(0)][yBathToModelRep(0)] = true;// TODO
+	}
+	
+	/**
+	 * Kollar om position x,y är utanför (eller på) cirkeln med radie r.
+	 * Använder pytagoras sats.
+	 * @param r Cirkelns radie.
+	 * @param x koordinaten
+	 * @param y koordinaten
+	 * @return "true" om positionen är utanför cirkeln
+	 */
+	public static boolean outsideCicle(int r, int x, int y) {
+		return ( Math.pow(r, 2) < Math.pow(x, 2) + Math.pow(y, 2) ); // TODO
+	}
+	
+	private static boolean onCirclePerimeter(int r, int x, int y) {
+		return (Math.pow(r, 2) - 1 <= Math.pow(x, 2) + Math.pow(y, 2));
+	}
+
+	/**
+	* Returns the crystals state i.e. a string according to figure 3 i labPM. 
+	* x and y is the position of the ion in the bath
+	* @return A string that draws the crystal.
+	*/
+	public String toString() {
+		int x = getX(); // the ions position in the bath
+		int y = getY();
+		int size = getEscapeCircleRadius();
+		StringBuffer s = new StringBuffer(1000);
+		for(int i=-size-1; i<size+1; i++) {
+			s.append("-");
+		}
+		s.append("\n");
+		for(int i=-size; i<size; i++) {
+			s.append("|");
+			for(int j=-size; j<size; j++) {
+				if (getModelValue(i, j)) {
+					if (i==x && j==y) {
+						s.append("#");
+					} else {
+						s.append("*");
+					}
+				} else {
+					s.append(" ");
+				}
+			}
+			s.append("|");
+			s.append("\n");
+		}
+		for(int i = -size-1; i < size+1; i++) {
+			s.append("-");
+		}
+		s.append("\n");
+		return s.toString();
+	}
+	
+	
+	/**
+	 * Släpper en jon på startcirkeln (dvs slumpar fram en ny punkt x,y på startcirkeln).
+	 */
+	private void dropNewIon() {
+		// we know the radius (=startCircleRadius), 
+		// we need to generate a random angle 0<=angle<360
+		// and transform to a x,y cordinate
+		double startAngle = Math.random() * 2 * Math.PI;
+		this.x = (int)(this.startCircleRadius * Math.cos(startAngle));
+		this.y = (int)(this.startCircleRadius * Math.sin(startAngle));// TODO
+	}
+	
+	/**
+	 * Omvandlar en "bad"-kordinat till ett matris värde.
+	 * All access till matrisen måste transformeras i.e. 0,0 -> size/2, size/2
+	 * @param x "bad"-koordinat som ska omvandlas
+	 * @return motsvarande x-koordinat iför matrisen
+	 */
+	private int xBathToModelRep(int x) {
+		return x+escapeCircleRadius+4;
+	}
+	private int yBathToModelRep(int y) {
+		return escapeCircleRadius-y+4;
+	}
+	
+	/**
+	 * Kollar om jonen på position x,y har några grannar som kristalliserats.
+	 * @param x koordinaten
+	 * @param y koordinaten
+	 * @return "true" om jonen har några grannar som kristalliserats
+	 */
+	private boolean anyNeighbours(int x, int y) {
+		// if close to some ion in matrix return true
+		return (this.modelRep[xBathToModelRep(x-1)][yBathToModelRep(y)] || this.modelRep[xBathToModelRep(x+1)][yBathToModelRep(y)] ||
+				this.modelRep[xBathToModelRep(x)][yBathToModelRep(y-1)] || this.modelRep[xBathToModelRep(x)][yBathToModelRep(y+1)]); // TODO
+	}
+	
 }

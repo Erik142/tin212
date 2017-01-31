@@ -23,7 +23,7 @@ public class Steg3 extends JFrame{
 				System.out.println("Storleken måste vara minst 10 och störst 1000");
 			}
 			else {
-				new Steg3(400);
+				new Steg3(800);
 			}
 		}
 		
