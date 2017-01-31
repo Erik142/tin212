@@ -8,7 +8,7 @@ public class CrystalView extends JPanel {
 	private final int MINIMUM_WINDOW_SIZE = 400;
 	private Color color;
 	private final Color standardColor = Color.RED;
-	
+
 	public CrystalView(CrystalModel m) {
 		this.model = m;
 		if (model.getBathSize() < this.MINIMUM_WINDOW_SIZE) {
@@ -17,24 +17,23 @@ public class CrystalView extends JPanel {
 		else {
 			this.WINDOW_SIZE = model.getBathSize();
 		}
-		
+
 		color = Color.RED;
 		this.setBackground(Color.BLACK);
 		this.setPreferredSize(new Dimension(WINDOW_SIZE,WINDOW_SIZE));
 		this.setLayout(new BorderLayout());
 		System.out.println("Model Size: " + m.getBathSize());
 	}
-	
+
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		g.setColor(standardColor);
-		
+
 		for(int i = -model.getEscapeCircleRadius(); i < model.getEscapeCircleRadius(); i++) {
 			for (int j = -model.getEscapeCircleRadius(); j < model.getEscapeCircleRadius(); j++) {
-			if (model.getModelValue(i, j)) {
-				g.drawOval(bathToWindowPosition(i), bathToWindowPosition(j), 1, 1);
-			}
-			//g.drawLine(xPos, yPos, xPos, yPos);
+				if (model.getModelValue(i, j)) {
+					g.drawOval(bathToWindowPosition(i), bathToWindowPosition(j), 1, 1);
+				}
 			}
 		}
 		g.setColor(Color.GREEN);
@@ -43,13 +42,11 @@ public class CrystalView extends JPanel {
 		}
 	}
 	
-	public void setColor(Color color) {
-		this.color = color;
-	}
+	
 	
 	private int bathToWindowPosition(int x) {
 		return (int)(x + this.WINDOW_SIZE/2);
 	}
-	
-	
+
+
 }
